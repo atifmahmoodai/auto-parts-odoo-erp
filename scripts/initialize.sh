@@ -4,9 +4,10 @@ set -euo pipefail
 : "${INITIAL_ADMIN_LOGIN:?Export the approved administrator email}"
 : "${INITIAL_ADMIN_PASSWORD:?Export a unique administrator password}"
 if [ "${#INITIAL_ADMIN_PASSWORD}" -lt 20 ]; then echo 'Use at least 20 characters for the administrator password.' >&2; exit 1; fi
-docker compose up -d db
+docker compose up -d --wait db
 # Do not accidentally reinstall/reconfigure a populated system.
-if docker compose exec -T db psql -U postgres -d parts -Atc "SELECT to_regclass('public.ir_module_module')" | grep -q ir_module_module; then
+installed=$(docker compose exec -T db psql -U postgres -d parts -Atc "SELECT to_regclass('public.ir_module_module')")
+if [ "$installed" = ir_module_module ]; then
   echo 'Database already initialized. Use the documented upgrade process.' >&2; exit 1
 fi
 docker compose run --rm odoo odoo -d parts -i auto_parts_dealer --without-demo=all --stop-after-init --max-cron-threads=0

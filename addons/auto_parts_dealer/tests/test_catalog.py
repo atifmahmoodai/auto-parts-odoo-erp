@@ -12,9 +12,9 @@ class TestCatalogMigration(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.manager = new_test_user(cls.env, login='parts_manager', groups='stock.group_stock_manager',
+        cls.manager = new_test_user(cls.env, login='parts_manager', groups='stock.group_stock_manager,product.group_product_manager', context={'no_reset_password': True},
                                     company_id=cls.env.company.id, company_ids=[fields.Command.set(cls.env.company.ids)])
-        cls.stock_user = new_test_user(cls.env, login='parts_operator', groups='stock.group_stock_user',
+        cls.stock_user = new_test_user(cls.env, login='parts_operator', groups='stock.group_stock_user', context={'no_reset_password': True},
                                       company_id=cls.env.company.id, company_ids=[fields.Command.set(cls.env.company.ids)])
 
     def batch(self, text=None):

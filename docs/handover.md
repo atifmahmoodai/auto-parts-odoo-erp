@@ -35,3 +35,5 @@ This is a planning baseline, not an accepted contract or a statement that suppor
 - [ ] Staff training completed; known gaps, operating owner and support channel/date/hours agreed.
 
 CI verifies a synthetic purchase/receive/transfer/sell/invoice/bill path and access/import safeguards. It does not replace real tax/accounting acceptance, physical stock reconciliation, actual scanner testing or an elapsed support period.
+
+Catalog import administrators need both `stock.group_stock_manager` and native `product.group_product_manager` (product management). Inventory administration alone does not grant product creation in Odoo 19. No sudo or automatic elevation is used.

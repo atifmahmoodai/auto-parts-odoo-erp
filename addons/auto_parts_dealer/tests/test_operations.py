@@ -37,7 +37,7 @@ class TestNativePartsOperations(AccountTestInvoicingCommon):
         self.assertEqual(product.with_context(warehouse_id=warehouse.id).qty_available,10)
         transfer=self.env['stock.picking'].create({'picking_type_id':warehouse.int_type_id.id,
             'location_id':warehouse.lot_stock_id.id,'location_dest_id':second.lot_stock_id.id,
-            'move_ids':[Command.create({'name':'Fictional transfer','product_id':product.id,'product_uom_qty':4,
+            'move_ids':[Command.create({'product_id':product.id,'product_uom_qty':4,
                 'product_uom':product.uom_id.id,'location_id':warehouse.lot_stock_id.id,'location_dest_id':second.lot_stock_id.id})]})
         transfer.action_confirm();transfer.action_assign();transfer.move_ids.write({'quantity':4,'picked':True});transfer.button_validate()
         self.assertEqual(transfer.state,'done')

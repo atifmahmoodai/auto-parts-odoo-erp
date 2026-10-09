@@ -38,3 +38,5 @@ Restore only into an isolated, disposable staging stack with separate volumes, n
 5. Record restore duration, recovery point, checksums, reviewer and discrepancies. Retest quarterly and before every release.
 
 CI exercises database dump/restore and addon upgrade, not a client's full off-host disaster recovery or filestore recovery. Establish agreed RPO/RTO, retention, monitoring and an off-host restoration drill before client go-live.
+
+Catalog import administrators need both `stock.group_stock_manager` and native `product.group_product_manager` (product management). Inventory administration alone does not grant product creation in Odoo 19. No sudo or automatic elevation is used.

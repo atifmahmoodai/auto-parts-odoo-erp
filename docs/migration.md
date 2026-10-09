@@ -29,3 +29,5 @@ This protects normal application callers, not a database administrator with dire
 ## Reconciliation record
 
 For each batch retain: source filename/hash, company/currency, batch ID, reviewer, row count, creates/updates, applied actor/time, rejected rows and remediation. Compare source and destination products/SKUs, unit/category, sampled prices/costs and stock by location. Stock and financial reconciliations are separate signed records. No client migration has been performed by this repository.
+
+Catalog import administrators need both `stock.group_stock_manager` and native `product.group_product_manager` (product management). Inventory administration alone does not grant product creation in Odoo 19. No sudo or automatic elevation is used.

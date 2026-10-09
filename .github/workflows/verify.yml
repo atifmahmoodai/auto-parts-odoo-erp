@@ -49,10 +49,57 @@ jobs:
           docker exec parts-db pg_dump -U odoo -Fc parts_test > evidence/parts-test.dump
           docker exec parts-db createdb -U odoo parts_restored
           docker exec -i parts-db pg_restore -U odoo --no-owner --exit-on-error -d parts_restored < evidence/parts-test.dump
-          test "$(docker exec parts-db psql -U odoo -d parts_restored -Atc \"SELECT state FROM ir_module_module WHERE name='auto_parts_dealer'\")" = installed
+          test "$(docker exec parts-db psql -U odoo -d parts_restored -Atc "SELECT state FROM ir_module_module WHERE name='auto_parts_dealer'")" = installed
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: native-odoo-evidence
           path: evidence/
           retention-days: 7
+  deployment:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      DOMAIN: localhost
+      POSTGRES_ADMIN_PASSWORD: disposable-ci-postgres-admin-password-001
+      ODOO_DB_PASSWORD: disposable-ci-odoo-database-password-002
+      ODOO_MASTER_PASSWORD: disposable-ci-odoo-master-password-003
+      INITIAL_ADMIN_LOGIN: parts-admin@example.invalid
+      INITIAL_ADMIN_PASSWORD: disposable-ci-admin-password-004
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate and initialize deployment stack
+        run: |
+          docker compose config --quiet
+          bash scripts/initialize.sh
+          test "$(docker compose exec -T db psql -U postgres -d parts -Atc "SELECT rolsuper OR rolcreatedb OR rolcreaterole FROM pg_roles WHERE rolname='odoo'")" = f
+          docker compose run -d --name parts-web -p 127.0.0.1:8069:8069 odoo
+          for n in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:8069/web/login > /dev/null; then break; fi
+            sleep 2
+          done
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install browser test runtime
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Verify actual Odoo interface
+        run: node scripts/browser-smoke.cjs
+      - name: Capture deployment logs
+        if: always()
+        run: |
+          mkdir -p evidence
+          docker logs parts-web > evidence/deployment.log 2>&1 || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: deployment-browser-evidence
+          path: evidence/
+          retention-days: 7
+      - name: Clean up disposable volumes
+        if: always()
+        run: |
+          docker rm -f parts-web || true
+          docker compose down -v

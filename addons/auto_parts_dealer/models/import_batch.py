@@ -61,8 +61,10 @@ class CatalogImport(models.Model):
     def _authorize(self):
         self.ensure_one()
         self.check_access('write')
-        if not self.env.user.has_group('stock.group_stock_manager') or self.company_id not in self.env.companies:
-            raise AccessError(_('An inventory administrator with this company selected is required.'))
+        if (not self.env.user.has_group('stock.group_stock_manager')
+                or not self.env.user.has_group('product.group_product_manager')
+                or self.company_id not in self.env.companies):
+            raise AccessError(_('Inventory administrator and product management permissions with this company selected are required.'))
 
     def _plan(self):
         self._authorize()
@@ -102,6 +104,9 @@ class CatalogImport(models.Model):
             plan.append((old, vals))
             snapshot.append({'source': row['source_key'], 'id': old.id or None,
                              'write_date': str(old.write_date) if old else None,
+                             'values': old.read(['name', 'default_code', 'barcode', 'ap_brand', 'ap_oem_reference',
+                                                 'ap_condition', 'list_price', 'standard_price', 'uom_id', 'categ_id',
+                                                 'active', 'ap_is_part', 'product_variant_count'])[0] if old else None,
                              'variant_write_date': str(old.product_variant_id.write_date) if old else None,
                              'uom_write_date': str(uom.write_date), 'category_write_date': str(category.write_date)})
         fingerprint = hashlib.sha256(json.dumps({'file': digest, 'company': self.company_id.id, 'snapshot': snapshot}, sort_keys=True).encode()).hexdigest()

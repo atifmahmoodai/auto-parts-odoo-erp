@@ -48,3 +48,5 @@ Inventory administrator: select company → upload → **Validate** → inspect 
 [Training and acceptance](docs/handover.md) · [Deployment and recovery](docs/deployment.md) · [Migration plan](docs/migration.md)
 
 Addon source license: LGPL-3.0, as declared in its manifest. Odoo and third-party components retain their own licenses.
+
+Catalog import administrators need both `stock.group_stock_manager` and native `product.group_product_manager` (product management). Inventory administration alone does not grant product creation in Odoo 19. No sudo or automatic elevation is used.
