@@ -1,3 +1,3 @@
 source_key,name,sku,barcode,brand,oem_reference,condition,sale_price,cost,uom_external_id,category_external_id
-DEMO-FILTER-001,Fictional oil filter,DEMO-OF-001,DEMO000001,Example Parts,EXAMPLE-OEM-100,new,24.50,12.00,uom.product_uom_unit,product.product_category_all
-DEMO-PAD-001,Fictional brake pad set,DEMO-BP-001,DEMO000002,Example Parts,EXAMPLE-OEM-200,new,89.00,45.00,uom.product_uom_unit,product.product_category_all
+DEMO-FILTER-001,Fictional oil filter,DEMO-OF-001,DEMO000001,Example Parts,EXAMPLE-OEM-100,new,24.50,12.00,uom.product_uom_unit,auto_parts_dealer.category_parts
+DEMO-PAD-001,Fictional brake pad set,DEMO-BP-001,DEMO000002,Example Parts,EXAMPLE-OEM-200,new,89.00,45.00,uom.product_uom_unit,auto_parts_dealer.category_parts

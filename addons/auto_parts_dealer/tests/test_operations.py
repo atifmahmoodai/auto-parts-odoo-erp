@@ -30,7 +30,7 @@ class TestNativePartsOperations(AccountTestInvoicingCommon):
         product=template.product_variant_id
         purchase=self.env['purchase.order'].create({'partner_id':vendor.id,'picking_type_id':warehouse.in_type_id.id,
             'order_line':[Command.create({'product_id':product.id,'name':product.name,'product_qty':10,
-                'product_uom_id':product.uom_id.id,'price_unit':12,'date_planned':fields.Datetime.now(),'taxes_id':[Command.clear()]})]})
+                'product_uom_id':product.uom_id.id,'price_unit':12,'date_planned':fields.Datetime.now(),'tax_ids':[Command.clear()]})]})
         purchase.button_confirm();receipt=purchase.picking_ids
         receipt.move_ids.write({'quantity':10,'picked':True});receipt.button_validate()
         self.assertEqual(receipt.state,'done')

@@ -1,6 +1,5 @@
+.env
 __pycache__/
 *.pyc
-.env
-data/
 evidence/
-*.log
+backups/

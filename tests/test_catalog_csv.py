@@ -23,7 +23,7 @@ class CatalogContractTests(unittest.TestCase):
                 module.parse_catalog(self.raw.replace(original, duplicate))
 
     def test_nonfinite_negative_or_overprecise_money(self):
-        for value in [b'NaN', b'Infinity', b'-1', b'0.00001', b'1000000001']:
+        for value in [b'0E+999999999', b'1e2', b'NaN', b'Infinity', b'-1', b'0.00001', b'1000000001']:
             with self.subTest(value=value), self.assertRaises(ValueError):
                 module.parse_catalog(self.raw.replace(b'24.50', value))
 

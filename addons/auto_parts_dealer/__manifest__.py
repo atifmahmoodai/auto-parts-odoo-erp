@@ -6,7 +6,8 @@
     'author': 'Atif Mahmood',
     'license': 'LGPL-3',
     'depends': ['sale_management', 'sale_stock', 'purchase_stock', 'stock_account', 'crm'],
-    'data': ['security/security.xml', 'security/ir.model.access.csv', 'views/product_views.xml',
+    'data': [
+        'data/catalog_data.xml','security/security.xml', 'security/ir.model.access.csv', 'views/product_views.xml',
              'views/import_views.xml', 'views/stock_views.xml', 'views/menus.xml'],
     'application': True,
     'installable': True,

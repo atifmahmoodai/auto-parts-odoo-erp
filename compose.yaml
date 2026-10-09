@@ -1,0 +1,53 @@
+services:
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: parts
+      POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD:?Set a separate PostgreSQL administrator password}
+      ODOO_DB_PASSWORD: ${ODOO_DB_PASSWORD:?Set an Odoo database password}
+    volumes:
+      - database:/var/lib/postgresql/data
+      - ./deploy/init-db.sh:/docker-entrypoint-initdb.d/10-odoo.sh:ro
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U postgres -d parts]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks: [private]
+  odoo:
+    image: odoo:19.0
+    restart: unless-stopped
+    entrypoint: [python3, /opt/parts/entrypoint.py]
+    environment:
+      ODOO_DB_PASSWORD: ${ODOO_DB_PASSWORD:?Set an Odoo database password}
+      ODOO_MASTER_PASSWORD: ${ODOO_MASTER_PASSWORD:?Set an Odoo database-manager password}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - filestore:/var/lib/odoo
+      - ./addons:/mnt/extra-addons:ro
+      - ./deploy/entrypoint.py:/opt/parts/entrypoint.py:ro
+    networks: [private, edge]
+  proxy:
+    image: caddy:2
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN:?Set the approved public hostname}
+    depends_on: [odoo]
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - certificates:/data
+      - proxy_config:/config
+    networks: [edge]
+volumes:
+  database:
+  filestore:
+  certificates:
+  proxy_config:
+networks:
+  private:
+    internal: true
+  edge:

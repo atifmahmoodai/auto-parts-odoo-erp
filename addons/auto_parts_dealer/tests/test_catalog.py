@@ -4,7 +4,7 @@ from odoo.tests import TransactionCase, tagged, new_test_user
 from odoo.exceptions import AccessError, UserError, ValidationError
 
 HEADER = 'source_key,name,sku,barcode,brand,oem_reference,condition,sale_price,cost,uom_external_id,category_external_id\n'
-ROW = 'TEST-001,Test oil filter,TEST-OF-001,TESTBAR001,Example Parts,EX-OEM-100,new,24.50,12.00,uom.product_uom_unit,product.product_category_all\n'
+ROW = 'TEST-001,Test oil filter,TEST-OF-001,TESTBAR001,Example Parts,EX-OEM-100,new,24.50,12.00,uom.product_uom_unit,auto_parts_dealer.category_parts\n'
 
 
 @tagged('post_install', '-at_install')
