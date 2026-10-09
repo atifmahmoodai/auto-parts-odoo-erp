@@ -2,7 +2,7 @@
 
 A native **Odoo Community 19** extension for an automotive parts distributor. It adds company-scoped parts identity, reviewed catalog migration, and warehouse stock reporting to Odoo's sales, purchases, inventory, vendor, invoicing and CRM workflows. The original engagement brief is preserved in [docs/original-brief.md](docs/original-brief.md).
 
-**Implementation status:** candidate under native Odoo/PostgreSQL CI verification. This repository is a reusable implementation, not a completed client rollout. Client data, accounting localization, hosting, operational acceptance and the proposed month of support remain outstanding.
+**Implementation status:** implemented and verified against native Odoo 19/PostgreSQL 17. [Verification run 37885690428](https://github.com/atifmahmoodai/auto-parts-odoo-erp/actions/runs/37885690428) passed 10 native workflow/security tests, four parser tests, addon upgrade, database restore, actual deployment initialization and browser catalog review/apply checks. This repository is a reusable implementation, not a completed client rollout. Client data, accounting localization, hosting, operational acceptance and the proposed month of support remain outstanding.
 
 ## Delivered scope
 
