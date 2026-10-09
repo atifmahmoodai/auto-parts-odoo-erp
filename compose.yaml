@@ -10,7 +10,7 @@ services:
       - database:/var/lib/postgresql/data
       - ./deploy/init-db.sh:/docker-entrypoint-initdb.d/10-odoo.sh:ro
     healthcheck:
-      test: [CMD-SHELL, pg_isready -U postgres -d parts]
+      test: [CMD-SHELL, pg_isready -h 127.0.0.1 -U postgres -d parts]
       interval: 5s
       timeout: 5s
       retries: 20

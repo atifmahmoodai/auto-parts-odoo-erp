@@ -42,6 +42,16 @@ class TestCatalogMigration(TransactionCase):
         with self.assertRaises(UserError):batch.unlink()
         with self.assertRaises(AccessError):batch.write({'state':'draft'})
 
+    def test_context_cannot_forge_import_results(self):
+        batch = self.env['ap.catalog.import'].with_user(self.manager).with_context(
+            default_state='applied', default_digest='forged', default_applied_by=self.manager.id,
+            default_row_count=999).create({'file':base64.b64encode((HEADER+ROW).encode())})
+        self.assertEqual(batch.state, 'draft')
+        self.assertFalse(batch.digest)
+        self.assertFalse(batch.applied_by)
+        self.assertEqual(batch.row_count, 0)
+        with self.assertRaises(UserError): batch.action_apply()
+
     def test_existing_updates_and_stale_review(self):
         first = self.batch();first.action_validate();first.action_apply()
         second = self.batch((HEADER+ROW).replace('Test oil filter','Updated oil filter'))

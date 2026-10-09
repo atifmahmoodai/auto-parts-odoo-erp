@@ -48,7 +48,9 @@ const fs = require('node:fs');
     fs.writeFileSync('evidence/browser-result.json', JSON.stringify({ login: true, review: true, apply: true, persisted: true, products: 2 }, null, 2));
   } catch (error) {
     await page.screenshot({ path: 'evidence/browser-failure.png', fullPage: true }).catch(() => {});
-    fs.writeFileSync('evidence/browser-failure.txt', await page.locator('body').innerText().catch(() => 'No body'));
+    const body = await page.locator('body').innerText().catch(() => 'No body');
+    fs.writeFileSync('evidence/browser-failure.txt', body);
+    console.error(body);
     throw error;
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exit(1); });

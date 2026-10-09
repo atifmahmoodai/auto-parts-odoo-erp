@@ -42,7 +42,11 @@ class CatalogImport(models.Model):
             self._validate_input_size(vals)
             if set(vals) - self._editable:
                 raise AccessError(_('Import result fields cannot be supplied by callers.'))
-        return super().create(vals_list)
+        # Context defaults are caller-controlled too; never inherit result metadata.
+        safe_vals = [dict(vals, state='draft', digest=False, plan_fingerprint=False, preview=False,
+                          row_count=0, applied_at=False, applied_by=False, product_ids=[fields.Command.clear()])
+                     for vals in vals_list]
+        return super().create(safe_vals)
 
     def write(self, vals):
         self._validate_input_size(vals)
@@ -119,7 +123,16 @@ class CatalogImport(models.Model):
         plan, digest, fingerprint = self._plan()
         created = sum(not old for old, _ in plan)
         summary = _('%s rows: %s new products and %s existing products. Prices/costs use the selected company currency. No quantities, taxes, invoices, vendor bills or journal entries are imported.\n\n', len(plan), created, len(plan)-created)
-        summary += '\n'.join(('UPDATE ' if old else 'CREATE ') + vals['default_code'] + ' — ' + vals['name'] for old, vals in plan)
+        lines = []
+        for old, vals in plan:
+            lines.append(('UPDATE ' if old else 'CREATE ') + vals['default_code'] + ' — ' + vals['name'])
+            lines.append('  Brand: %s | OEM: %s | Condition: %s | Sale price: %s | Cost: %s' % (
+                vals['ap_brand'] or '—', vals['ap_oem_reference'] or '—', vals['ap_condition'],
+                vals['list_price'], old.standard_price if old else vals['standard_price']))
+            if old:
+                changes = {key: {'before': old[key], 'after': value} for key, value in vals.items() if old[key] != value}
+                lines.append('  Changes: ' + json.dumps(changes, ensure_ascii=False, sort_keys=True))
+        summary += '\n'.join(lines)
         super().write({'state': 'validated', 'digest': digest, 'plan_fingerprint': fingerprint, 'preview': summary, 'row_count': len(plan)})
         return True
 
