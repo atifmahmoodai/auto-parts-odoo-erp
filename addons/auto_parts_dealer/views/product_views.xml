@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="product_template_parts_form" model="ir.ui.view">
+    <field name="name">product.template.auto.parts</field><field name="model">product.template</field>
+    <field name="inherit_id" ref="product.product_template_only_form_view"/>
+    <field name="arch" type="xml">
+      <xpath expr="//notebook" position="inside">
+        <page string="Auto Parts" name="auto_parts">
+          <group><group><field name="ap_is_part"/><field name="ap_source_key" readonly="id and ap_source_key"/><field name="company_id" required="ap_is_part" readonly="id and ap_source_key"/></group>
+          <group><field name="ap_brand"/><field name="ap_oem_reference"/><field name="ap_condition" required="ap_is_part"/></group></group>
+          <div class="alert alert-info" role="alert">OEM references describe the catalog. Verify vehicle compatibility against authorized evidence before supplying a part.</div>
+        </page>
+      </xpath>
+    </field>
+  </record>
+  <record id="parts_catalog_list" model="ir.ui.view">
+    <field name="name">product.template.parts.list</field><field name="model">product.template</field>
+    <field name="arch" type="xml"><list string="Parts Catalog"><field name="default_code"/><field name="name"/><field name="ap_brand"/><field name="ap_oem_reference"/><field name="ap_condition"/><field name="qty_available"/><field name="list_price"/><field name="company_id" groups="base.group_multi_company"/><field name="ap_source_key" optional="hide"/></list></field>
+  </record>
+  <record id="parts_catalog_search" model="ir.ui.view">
+    <field name="name">product.template.parts.search</field><field name="model">product.template</field>
+    <field name="arch" type="xml"><search><field name="name" string="Name, SKU, OEM or brand" filter_domain="['|','|','|',('name','ilike',self),('default_code','ilike',self),('ap_oem_reference','ilike',self),('ap_brand','ilike',self)]"/><field name="ap_source_key"/><filter name="used" string="Used parts" domain="[('ap_condition','=','used')]"/><filter name="archived" string="Archived" domain="[('active','=',False)]"/><group><filter name="brand" string="Brand" context="{'group_by':'ap_brand'}"/><filter name="category" string="Category" context="{'group_by':'categ_id'}"/></group></search></field>
+  </record>
+  <record id="action_parts_catalog" model="ir.actions.act_window">
+    <field name="name">Parts Catalog</field><field name="res_model">product.template</field><field name="view_mode">list,form</field>
+    <field name="view_id" ref="parts_catalog_list"/><field name="search_view_id" ref="parts_catalog_search"/>
+    <field name="domain">[('ap_is_part','=',True)]</field><field name="context">{'default_ap_is_part':True,'default_type':'consu','default_is_storable':True,'default_company_id':allowed_company_ids[0]}</field>
+    <field name="help" type="html"><p class="o_view_nocontent_smiling_face">Build a reliable parts catalog.</p><p>Use stable source keys, verified part references and explicit company ownership.</p></field>
+  </record>
+</odoo>

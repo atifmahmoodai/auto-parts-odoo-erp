@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <menuitem id="menu_parts_root" name="Parts Operations" sequence="15" web_icon="auto_parts_dealer,static/description/icon.svg" groups="stock.group_stock_user"/>
+  <menuitem id="menu_parts_stock" name="Location Stock" parent="menu_parts_root" action="action_parts_stock" sequence="10"/>
+  <menuitem id="menu_parts_catalog" name="Parts Catalog" parent="menu_parts_root" action="action_parts_catalog" sequence="20"/>
+  <menuitem id="menu_parts_import" name="Catalog Migration" parent="menu_parts_root" action="action_catalog_import" sequence="30" groups="stock.group_stock_manager"/>
+  <menuitem id="menu_parts_locations" name="Stock Locations" parent="menu_parts_root" action="stock.action_location_form" sequence="40" groups="stock.group_stock_manager"/>
+  <menuitem id="menu_parts_reorder" name="Reordering Rules" parent="menu_parts_root" action="stock.action_orderpoint" sequence="50" groups="stock.group_stock_manager"/>
+  <menuitem id="menu_parts_sales" name="Quotations" parent="menu_parts_root" action="sale.action_quotations" sequence="60" groups="sales_team.group_sale_salesman"/>
+  <menuitem id="menu_parts_purchase" name="Purchase Orders" parent="menu_parts_root" action="purchase.purchase_form_action" sequence="70" groups="purchase.group_purchase_user"/>
+  <menuitem id="menu_parts_vendors" name="Vendors" parent="menu_parts_root" action="account.res_partner_action_supplier" sequence="80" groups="purchase.group_purchase_user"/>
+  <menuitem id="menu_parts_invoices" name="Customer Invoices" parent="menu_parts_root" action="account.action_move_out_invoice_type" sequence="90" groups="account.group_account_invoice"/>
+  <menuitem id="menu_parts_bills" name="Vendor Bills" parent="menu_parts_root" action="account.action_move_in_invoice_type" sequence="100" groups="account.group_account_invoice"/>
+  <menuitem id="menu_parts_crm" name="CRM Pipeline" parent="menu_parts_root" action="crm.crm_lead_action_pipeline" sequence="110" groups="sales_team.group_sale_salesman"/>
+</odoo>

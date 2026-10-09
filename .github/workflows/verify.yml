@@ -1,0 +1,58 @@
+name: Verify native Odoo
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check CSV contract and source syntax
+        run: |
+          python3 -m unittest discover -s tests -v
+          python3 -m compileall -q addons tests scripts
+          python3 - <<'PY'
+          from pathlib import Path
+          from xml.etree import ElementTree
+          for path in Path('addons').rglob('*.xml'): ElementTree.parse(path)
+          PY
+      - name: Initialize isolated PostgreSQL
+        run: |
+          docker network create parts-ci
+          docker run -d --name parts-db --network parts-ci -e POSTGRES_PASSWORD=disposable-ci-password postgres:17
+          for n in $(seq 1 40); do
+            if docker exec parts-db pg_isready -U postgres; then break; fi
+            sleep 2
+          done
+          docker exec parts-db psql -U postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE odoo LOGIN CREATEDB NOSUPERUSER PASSWORD 'disposable-odoo-password';"
+      - name: Install and test Odoo 19 workflows
+        run: |
+          set -o pipefail
+          mkdir -p evidence
+          docker run --rm --network parts-ci -e HOST=parts-db -e USER=odoo -e PASSWORD=disposable-odoo-password \
+            -v "$PWD/addons:/mnt/extra-addons:ro" odoo:19.0 \
+            odoo -d parts_test -i auto_parts_dealer,l10n_us_account --without-demo=all \
+            --test-enable --test-tags /auto_parts_dealer --stop-after-init --max-cron-threads=0 \
+            --log-level=test 2>&1 | tee evidence/odoo-tests.log
+          grep -E '[1-9][0-9]* tests? passed|0 failed, 0 error\(s\) of [1-9][0-9]* tests' evidence/odoo-tests.log
+      - name: Verify module upgrade
+        run: |
+          set -o pipefail
+          docker run --rm --network parts-ci -e HOST=parts-db -e USER=odoo -e PASSWORD=disposable-odoo-password \
+            -v "$PWD/addons:/mnt/extra-addons:ro" odoo:19.0 \
+            odoo -d parts_test -u auto_parts_dealer --stop-after-init --max-cron-threads=0 2>&1 | tee evidence/odoo-upgrade.log
+      - name: Verify database backup restore
+        run: |
+          docker exec parts-db pg_dump -U odoo -Fc parts_test > evidence/parts-test.dump
+          docker exec parts-db createdb -U odoo parts_restored
+          docker exec -i parts-db pg_restore -U odoo --no-owner --exit-on-error -d parts_restored < evidence/parts-test.dump
+          test "$(docker exec parts-db psql -U odoo -d parts_restored -Atc \"SELECT state FROM ir_module_module WHERE name='auto_parts_dealer'\")" = installed
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-odoo-evidence
+          path: evidence/
+          retention-days: 7
